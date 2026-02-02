@@ -1,80 +1,31 @@
-FROM debian:bullseye-slim
+FROM python:3.11-slim
 
-# 设置非交互模式
-ENV DEBIAN_FRONTEND=noninteractive
-ENV DISPLAY=:99
-
-# 配置 UTF-8 locale
-RUN apt-get update && apt-get install -y locales \
-    && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
-    && locale-gen en_US.UTF-8 \
-    && rm -rf /var/lib/apt/lists/*
-
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-
-# 安装依赖
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    xvfb \
-    xdg-utils \
-    zstd \
-    libxcb-xinerama0 \
-    libxcb-cursor0 \
-    libxkbcommon-x11-0 \
-    libxcb-icccm4 \
-    libxcb-image0 \
-    libxcb-keysyms1 \
-    libxcb-randr0 \
-    libxcb-render-util0 \
-    libxcb-shape0 \
-    libnss3 \
-    libnspr4 \
-    libasound2 \
-    libdbus-1-3 \
-    libglib2.0-0 \
-    libegl1-mesa \
-    libgl1-mesa-glx \
-    libglu1-mesa \
-    libglx0 \
-    python3 \
-    python3-pip \
-    git \
-    unzip \
-    && rm -rf /var/lib/apt/lists/*
-
-# 下载并安装 Anki
-WORKDIR /tmp
-RUN wget -O anki.tar.zst https://github.com/ankitects/anki/releases/download/24.11/anki-24.11-linux-qt6.tar.zst \
-    && tar xaf anki.tar.zst \
-    && cd anki-24.11-linux-qt6 \
-    && ./install.sh \
-    && cd .. \
-    && rm -rf anki*
-
-# 创建工作目录
+# 设置工作目录
 WORKDIR /app
 
-# 创建 Anki 数据目录
-RUN mkdir -p /root/.local/share/Anki2
+# 安装必要的依赖
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-# 复制 AnkiConnect 插件安装脚本
-COPY install_ankiconnect.sh /app/
-RUN chmod +x /app/install_ankiconnect.sh
+# 安装 Anki（包含同步服务器）
+RUN pip install --no-cache-dir anki
 
-# 复制自动同步脚本
-COPY auto_sync.py /app/
-COPY init_anki.py /app/
-RUN pip3 install requests
+# 创建数据目录
+RUN mkdir -p /data/collections
 
-# 复制启动脚本
-COPY start.sh /app/
-RUN chmod +x /app/start.sh
+# 创建启动脚本
+COPY sync-server-start.sh /app/
+RUN chmod +x /app/sync-server-start.sh
 
-# 暴露 AnkiConnect 端口
-EXPOSE 8765
+# 暴露同步服务器端口
+EXPOSE 8080
 
-# 启动脚本
-CMD ["/app/start.sh"]
+# 设置环境变量
+ENV SYNC_BASE=/data
+ENV SYNC_PORT=8080
+ENV SYNC_HOST=0.0.0.0
+
+# 启动同步服务器
+CMD ["/app/sync-server-start.sh"]
+
