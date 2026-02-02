@@ -16,6 +16,12 @@ else
     echo "✅ 检测到 AnkiWeb 凭据"
 fi
 
+# 清理可能残留的 Xvfb 锁文件
+if [ -f /tmp/.X99-lock ]; then
+    echo "🧹 清理旧的 Xvfb 锁文件..."
+    rm -f /tmp/.X99-lock
+fi
+
 # 启动 Xvfb (虚拟显示)
 echo "🖥️  启动虚拟显示 (Xvfb)..."
 Xvfb :99 -screen 0 1024x768x16 &
