@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     wget \
     curl \
     xvfb \
+    xdg-utils \
+    zstd \
     libxcb-xinerama0 \
     libxcb-cursor0 \
     libxkbcommon-x11-0 \
@@ -32,13 +34,11 @@ RUN apt-get update && apt-get install -y \
 # 下载并安装 Anki
 WORKDIR /tmp
 RUN wget -O anki.tar.zst https://github.com/ankitects/anki/releases/download/24.11/anki-24.11-linux-qt6.tar.zst \
-    && apt-get update && apt-get install -y zstd \
     && tar xaf anki.tar.zst \
     && cd anki-24.11-linux-qt6 \
     && ./install.sh \
     && cd .. \
-    && rm -rf anki* \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf anki*
 
 # 创建工作目录
 WORKDIR /app
