@@ -28,13 +28,15 @@ Xvfb :99 -screen 0 1024x768x16 &
 XVFB_PID=$!
 sleep 2
 
-# 检查 AnkiConnect 是否已安装
+# 检查 AnkiConnect 是否已安装（Volume 持久化检测）
 ANKICONNECT_DIR="/root/.local/share/Anki2/addons21/2055492159"
+PREFS_FILE="/root/.local/share/Anki2/prefs21.db"
+
 if [ ! -d "$ANKICONNECT_DIR" ]; then
     echo "📦 首次运行，安装 AnkiConnect..."
     /app/install_ankiconnect.sh
 else
-    echo "✅ AnkiConnect 已安装"
+    echo "✅ AnkiConnect 已安装 (从 Volume 加载)"
 fi
 
 # 创建基础配置目录并设置权限
@@ -43,8 +45,13 @@ ANKI_BASE="/root/.local/share/Anki2"
 mkdir -p "$ANKI_BASE"
 chmod -R 755 "$ANKI_BASE"
 
-# 初始化最小配置
-python3 /app/init_anki.py
+# 初始化最小配置（仅在首次运行时）
+if [ ! -f "$PREFS_FILE" ]; then
+    echo "🔧 首次运行，初始化 Anki 配置..."
+    python3 /app/init_anki.py
+else
+    echo "✅ Anki 配置已存在 (从 Volume 加载)"
+fi
 
 # 启动 Anki 并捕获错误输出
 echo "🎴 启动 Anki..."
