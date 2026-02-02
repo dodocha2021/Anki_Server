@@ -43,13 +43,25 @@ ANKI_BASE="/root/.local/share/Anki2"
 mkdir -p "$ANKI_BASE"
 chmod -R 755 "$ANKI_BASE"
 
-# 初始化 Anki 配置文件
+# 初始化最小配置
 python3 /app/init_anki.py
 
 # 启动 Anki 并捕获错误输出
 echo "🎴 启动 Anki..."
+
+# 设置环境变量强制无头模式
 export QT_QPA_PLATFORM=offscreen
-anki --no-sandbox --base "$ANKI_BASE" 2>&1 | tee /tmp/anki.log &
+export QT_LOGGING_RULES="*.debug=false;qt.qpa.*=false"
+export QTWEBENGINE_DISABLE_SANDBOX=1
+
+# 尝试使用 --profile 参数避免 GUI 初始化对话框
+# 启动 Anki 时指定一个默认配置文件
+echo "User 1" > "$ANKI_BASE/profile"
+
+anki --no-sandbox \
+  --base "$ANKI_BASE" \
+  --profile "User 1" \
+  2>&1 | tee /tmp/anki.log &
 ANKI_PID=$!
 sleep 5
 
