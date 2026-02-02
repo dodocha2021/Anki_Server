@@ -42,13 +42,18 @@ fi
 # 创建基础配置目录并设置权限
 echo "📁 初始化 Anki 数据目录..."
 ANKI_BASE="/root/.local/share/Anki2"
+COLLECTION_FILE="$ANKI_BASE/User 1/collection.anki2"
 mkdir -p "$ANKI_BASE"
 chmod -R 755 "$ANKI_BASE"
 
-# 初始化最小配置（仅在首次运行时）
-if [ ! -f "$PREFS_FILE" ]; then
+# 初始化配置（仅在首次运行时）
+if [ ! -f "$COLLECTION_FILE" ]; then
     echo "🔧 首次运行，初始化 Anki 配置..."
     python3 /app/init_anki.py
+    if [ $? -ne 0 ]; then
+        echo "❌ 初始化失败"
+        exit 1
+    fi
 else
     echo "✅ Anki 配置已存在 (从 Volume 加载)"
 fi
@@ -61,14 +66,8 @@ export QT_QPA_PLATFORM=offscreen
 export QT_LOGGING_RULES="*.debug=false;qt.qpa.*=false"
 export QTWEBENGINE_DISABLE_SANDBOX=1
 
-# 尝试使用 --profile 参数避免 GUI 初始化对话框
-# 启动 Anki 时指定一个默认配置文件
-echo "User 1" > "$ANKI_BASE/profile"
-
-anki --no-sandbox \
-  --base "$ANKI_BASE" \
-  --profile "User 1" \
-  2>&1 | tee /tmp/anki.log &
+# 启动 Anki（不使用 --profile，让 Anki 自动选择）
+anki --no-sandbox --base "$ANKI_BASE" 2>&1 | tee /tmp/anki.log &
 ANKI_PID=$!
 sleep 5
 
