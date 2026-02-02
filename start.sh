@@ -37,16 +37,7 @@ else
     echo "✅ AnkiConnect 已安装"
 fi
 
-# 配置 Anki 首选项（如果不存在）
-PREFS_FILE="/root/.local/share/Anki2/prefs21.db"
-if [ ! -f "$PREFS_FILE" ]; then
-    echo "⚙️  初始化 Anki 配置..."
-    # 首次启动 Anki 会自动创建配置
-    timeout 10 anki --no-sandbox || true
-    sleep 2
-fi
-
-# 启动 Anki
+# 启动 Anki (跳过初始化，让 Anki 自动处理)
 echo "🎴 启动 Anki..."
 anki --no-sandbox &
 ANKI_PID=$!
