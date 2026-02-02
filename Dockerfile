@@ -66,6 +66,7 @@ RUN chmod +x /app/install_ankiconnect.sh
 
 # 复制自动同步脚本
 COPY auto_sync.py /app/
+COPY init_anki.py /app/
 RUN pip3 install requests
 
 # 复制启动脚本

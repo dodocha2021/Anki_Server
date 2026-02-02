@@ -39,14 +39,19 @@ fi
 
 # 创建基础配置目录并设置权限
 echo "📁 初始化 Anki 数据目录..."
-mkdir -p /root/.local/share/Anki2
-chmod -R 755 /root/.local/share/Anki2
+ANKI_BASE="/root/.local/share/Anki2"
+mkdir -p "$ANKI_BASE"
+chmod -R 755 "$ANKI_BASE"
+
+# 初始化 Anki 配置文件
+python3 /app/init_anki.py
 
 # 启动 Anki 并捕获错误输出
 echo "🎴 启动 Anki..."
-anki --no-sandbox --base /root/.local/share/Anki2 2>&1 | tee /tmp/anki.log &
+export QT_QPA_PLATFORM=offscreen
+anki --no-sandbox --base "$ANKI_BASE" 2>&1 | tee /tmp/anki.log &
 ANKI_PID=$!
-sleep 3
+sleep 5
 
 # 检查 Anki 是否还在运行
 if ! kill -0 $ANKI_PID 2>/dev/null; then
