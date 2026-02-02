@@ -35,6 +35,10 @@ RUN apt-get update && apt-get install -y \
     libasound2 \
     libdbus-1-3 \
     libglib2.0-0 \
+    libegl1-mesa \
+    libgl1-mesa-glx \
+    libglu1-mesa \
+    libglx0 \
     python3 \
     python3-pip \
     git \
