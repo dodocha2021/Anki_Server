@@ -37,10 +37,23 @@ else
     echo "✅ AnkiConnect 已安装"
 fi
 
-# 启动 Anki (跳过初始化，让 Anki 自动处理)
+# 创建基础配置目录并设置权限
+echo "📁 初始化 Anki 数据目录..."
+mkdir -p /root/.local/share/Anki2
+chmod -R 755 /root/.local/share/Anki2
+
+# 启动 Anki 并捕获错误输出
 echo "🎴 启动 Anki..."
-anki --no-sandbox &
+anki --no-sandbox --base /root/.local/share/Anki2 2>&1 | tee /tmp/anki.log &
 ANKI_PID=$!
+sleep 3
+
+# 检查 Anki 是否还在运行
+if ! kill -0 $ANKI_PID 2>/dev/null; then
+    echo "❌ Anki 启动失败！查看错误日志："
+    cat /tmp/anki.log
+    exit 1
+fi
 
 # 等待 AnkiConnect 就绪
 echo "⏳ 等待 AnkiConnect 启动..."
