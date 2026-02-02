@@ -3,6 +3,6 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "/app/start.sh"
+startCommand = "/app/sync-server-start.sh"
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
