@@ -4,6 +4,16 @@ FROM debian:bullseye-slim
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DISPLAY=:99
 
+# 配置 UTF-8 locale
+RUN apt-get update && apt-get install -y locales \
+    && sed -i 's/^# *\(en_US.UTF-8\)/\1/' /etc/locale.gen \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+
 # 安装依赖
 RUN apt-get update && apt-get install -y \
     wget \
